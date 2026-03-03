@@ -60,4 +60,4 @@ def Parse_config() -> dict:
 
 
 if __name__ == "__main__":
-    main()
+    Parse_config()
