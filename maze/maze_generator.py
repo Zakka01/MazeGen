@@ -5,7 +5,8 @@ class Block:
             Initialize the attributes : 
             x, y => ofc the coordinates, 
             walls => if the block closed or not
-            checked => if the block already visited or not 
+            checked => if the block already visited or not
+            ... 
         """
 
         self.x = x
@@ -39,3 +40,30 @@ class Block:
         """
         self.walls[direction] = False
 
+
+class MazeGen:
+    """
+        The Main Maze Generator Class
+    """
+
+    def __init__(self, config: dict):
+        """
+            Take the config dict as an Attribute 
+            while creating maze instance ,
+            extract height and width
+        """  
+        self.grid = []
+        self.height = config["HEIGHT"]
+        self.width = config["WIDTH"]
+
+
+
+    def grid_builder(self) -> None:
+        w = self.width
+        h = self.height
+        for y in range(h):
+            row = []
+            for x in range(w):
+                row.append(Block(x, y))
+            self.grid.append(row)
+        return self.grid

@@ -1,7 +1,7 @@
-from maze.maze_generator import Block 
 import sys
+from maze.maze_generator import Block, MazeGen
 
-def Parse_config() -> dict:
+def parse_config() -> dict:
 
     """
         Parse the Config File, Validate and Store the Data 
@@ -60,9 +60,44 @@ def Parse_config() -> dict:
         print(f"ERROR: {err}")
         sys.exit(1)
         
-    return dict   
+    return config
+
+
+def main() -> None:
+    config = parse_config()
+    maze = MazeGen(config)
+    
+    grid = maze.grid_builder()
+    
+    print(grid)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 if __name__ == "__main__":
-    Parse_config()
+    main()
