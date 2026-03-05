@@ -45,7 +45,7 @@ class Block:
 
 
 
-class MazeGen:
+class MazeGenerator:
 
     def __init__(self, config: dict):
         """
@@ -56,6 +56,7 @@ class MazeGen:
         self.grid = []
         self.height = config["HEIGHT"]
         self.width = config["WIDTH"]
+        self.seed = config["SEED"]
 
 
 
@@ -104,19 +105,21 @@ class MazeGen:
             and that neighbor, mark it as checked call the function 
             Recusively for that Neighbor as Param
         """
+        random.seed(self.seed)
 
+        stack = [current_block]
         current_block.checked = True
 
-        while True:
+        while stack:
+            current_block = stack[-1]
             valid_neighbors = self.check_around(current_block)
 
             if not valid_neighbors:
-                break
+                stack.pop()
+                continue
             
-            # If any Pick One
             next_block = random.choice(valid_neighbors)
 
-            # remove walls between current and next
             cx, cy = current_block.x, current_block.y
             nx, ny = next_block.x, next_block.y
             if cx < nx:
@@ -132,11 +135,15 @@ class MazeGen:
                 current_block.pop_wall("bottom")
                 next_block.pop_wall("top")
 
-            self.generate(next_block)
+            next_block.checked = True
+            stack.append(next_block)
+
+
+
+
 
     # Just a small visualizer to see the generated maze 
     def print_maze(self):
-        # Print top border based on the first row's top walls
         top_row = "o"
 
         for x in range(self.width):

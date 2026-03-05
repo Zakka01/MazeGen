@@ -1,5 +1,6 @@
 import sys
-from maze.maze_generator import MazeGen
+import random
+from maze.maze_generator import MazeGenerator
 
 
 def parse_config() -> dict:
@@ -48,7 +49,7 @@ def parse_config() -> dict:
                     raise ValueError(f"{key} coordinates out of bounds")
                 config[key] = (x, y)
 
-            elif key in ["WIDTH", "HEIGHT"]:
+            elif key in ["WIDTH", "HEIGHT", "SEED"]:
                 config[key] = int(value)
             
             elif key == "PERFECT":
@@ -78,7 +79,7 @@ def main() -> None:
     config = parse_config() # Get config file result
 
     # Create Instance of the Maze to Build Grid and Generate Maze
-    maze = MazeGen(config) 
+    maze = MazeGenerator(config) 
     maze.grid_builder()
 
     # Get the Entry Coordinates from the config
