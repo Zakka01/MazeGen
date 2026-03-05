@@ -79,6 +79,10 @@ def main() -> None:
     maze = MazeGen(config)
     
     maze.grid_builder()
+    start = maze.grid[0][0]
+    maze.generate(start)
+    
+    maze.print_maze()
     
 
 

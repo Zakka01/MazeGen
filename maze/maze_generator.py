@@ -42,6 +42,9 @@ class Block:
         self.walls[direction] = False
 
 
+
+
+
 class MazeGen:
 
     def __init__(self, config: dict):
@@ -93,37 +96,70 @@ class MazeGen:
 
 
 
-
-    def generate(self, block: Block):
-
-        block.checked = True
-        valid_neighbors = self.check_around(block)
-
-        if valid_neighbors:
-            next_block = random.choice(valid_neighbors)
+    def generate(self, current_block: Block):
         
-        # Unpacking for current & next Block
-        current_block = block
-        cx, cy = current_block.x, current_block.y
-        nx, ny = next_block.x, next_block.y
-        
-        # which neighbor to remove wall | which direction
-        if cx < nx:
-            current_block.pop_wall("left")
-            next_block.pop_wall("right")
-        elif cx > nx:
-            current_block.pop_wall("right")
-            next_block.pop_wall("left")
-        elif cy > ny:
-            current_block.pop_wall("top")
-            next_block.pop_wall("bottom")
-        elif cy < ny:
-            current_block.pop_wall("bottom")
-            next_block.pop_wall("top")
-        
-        next_block.checked = True
-        self.generate(next_block)
+        """
+            Start at the Current Block, Check for Neighbors
+            if any choose One Random, remove wall between current 
+            and that neighbor, mark it as checked call the function 
+            Recusively for that Neighbor as Param
+        """
 
+        current_block.checked = True
+
+        while True:
+            valid_neighbors = self.check_around(current_block)
+
+            if not valid_neighbors:
+                break
             
+            # If any Pick One
+            next_block = random.choice(valid_neighbors)
 
+            # remove walls between current and next
+            cx, cy = current_block.x, current_block.y
+            nx, ny = next_block.x, next_block.y
+            if cx < nx:
+                current_block.pop_wall("right")
+                next_block.pop_wall("left")
+            elif cx > nx:
+                current_block.pop_wall("left")
+                next_block.pop_wall("right")
+            elif cy > ny:
+                current_block.pop_wall("top")
+                next_block.pop_wall("bottom")
+            elif cy < ny:
+                current_block.pop_wall("bottom")
+                next_block.pop_wall("top")
 
+            self.generate(next_block)
+
+    # Just a small visualizer to see the generated maze 
+    def print_maze(self):
+
+        # top border
+        print("+" + "---+" * self.width)
+
+        for y in range(self.height):
+
+            row_top = "|"
+            row_bottom = "+"
+
+            for x in range(self.width):
+                block = self.grid[y][x]
+
+                # cell space
+                row_top += "   "
+
+                if block.walls["right"]:
+                    row_top += "|"
+                else:
+                    row_top += " "
+
+                if block.walls["bottom"]:
+                    row_bottom += "---+"
+                else:
+                    row_bottom += "   +"
+
+            print(row_top)
+            print(row_bottom)
