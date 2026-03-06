@@ -91,7 +91,7 @@ def main() -> None:
     start_block = maze.grid[y][x]
     end_block = maze.grid[exit_y][exit_x]
     
-    # Generate the maze starting from the entry
+    maze.ft_pattern()
     maze.generate(start_block)
 
     
@@ -116,15 +116,21 @@ def main() -> None:
         end_block.pop_wall("right")
     
     # Print the maze to see the result
-    # maze.print_maze()
+    maze.print_maze()
     
-    hex_output = maze.hex_encoding()
     
     try:
+        hex_output = maze.hex_encoding()
+
         output_file = config["OUTPUT_FILE"]
         with open(output_file, "w") as f:
             for row in hex_output:
                 f.write(''.join(row) + "\n")
+
+            f.write("\n")
+            f.write(f"{x},{y}")
+            f.write("\n")
+            f.write(f"{exit_x},{exit_y}")
     except Exception as err:
         print(f"ERROR: {err}")
              

@@ -19,6 +19,7 @@ class Block:
             "right": True
         }
         self.checked = False
+        self.is_pattern = False
 
 
 
@@ -59,7 +60,6 @@ class MazeGenerator:
         self.seed = config["SEED"]
 
 
-
     def grid_builder(self) -> None:
         
         """
@@ -71,6 +71,37 @@ class MazeGenerator:
             for x in range(self.width):
                 row.append(Block(x, y))
             self.grid.append(row)
+
+
+
+
+    def ft_pattern(self):
+        cx = self.width // 2
+        cy = self.height // 2
+
+        four = [
+            (0,0),
+            (0,1),
+            (0,2), (1,2),(2,2),
+                        (2,3),
+                        (2,4),
+        ]
+
+        two = [
+            (4,0),(5,0),(6,0),
+                        (6,1),
+            (4,2),(5,2),(6,2),
+            (4,3),
+            (4,4),(5,4),(6,4)
+        ]
+
+        pattern = four + two
+
+        for dx, dy in pattern:
+            x, y = cx + dx, cy + dy
+            if 0 <= x < self.width and 0 <= y < self.height:
+                self.grid[y][x].is_pattern = True
+
 
 
 
@@ -90,7 +121,7 @@ class MazeGenerator:
             nx, ny = n
             if 0 <= nx < self.width and 0 <= ny < self.height:
                 this_block = self.grid[ny][nx]
-                if not this_block.checked:
+                if not this_block.checked and not this_block.is_pattern:
                     valid_neighbors.append(this_block)
 
         return valid_neighbors
@@ -143,9 +174,9 @@ class MazeGenerator:
     def hex_encoding(self) -> list:
         hex_lst = "0123456789ABCDEF"
         hex_output = []
-        for col in range(self.width):
-            row_output = []
-            for row in range(self.height):
+        for row in range(self.height):
+            output = []
+            for col in range(self.width):
                 value = 0
                 block = self.grid[row][col]
                 if block.has_wall("top"): value += 1
@@ -154,8 +185,8 @@ class MazeGenerator:
                 if block.has_wall("left"): value += 8
 
                 block_hex = hex_lst[value]
-                row_output.append(block_hex)
-            hex_output.append(row_output)
+                output.append(block_hex)
+            hex_output.append(output)
 
         return hex_output
 
@@ -180,7 +211,10 @@ class MazeGenerator:
                 block = self.grid[y][x]
 
                 # cell space
-                row_top += "   "
+                if block.is_pattern == True:
+                    row_top += " 0 "
+                else:
+                    row_top += "   "
 
                 # right wall
                 if block.walls["right"]:
