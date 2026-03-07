@@ -1,4 +1,3 @@
 /venv
-# .gitignore
+.gitignore
 output_validator.py
-/maze/__pycache__/
