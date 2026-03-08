@@ -1,4 +1,5 @@
 import random
+from collections import deque
 
 class Block:
     def __init__(self, x: int, y: int):
@@ -20,7 +21,7 @@ class Block:
         }
         self.checked = False
         self.is_pattern = False
-
+        self.is_path = False
 
 
     def has_wall(self, direction: str) -> bool:
@@ -55,10 +56,16 @@ class MazeGenerator:
             extract height and width
         """  
         self.grid = []
+
         self.height = config["HEIGHT"]
         self.width = config["WIDTH"]
+
+        self.entry = config["ENTRY"]
+        self.exit = config["EXIT"]
+
         self.seed = config["SEED"]
         self.pattern = config["PATTERN"]
+
 
 
     def grid_builder(self) -> None:
@@ -75,8 +82,7 @@ class MazeGenerator:
 
 
 
-
-    def ft_pattern(self):
+    def ft_pattern(self) -> None:
         """
             Get the Pattern value from config file
             - split the number and put them on list then
@@ -126,7 +132,6 @@ class MazeGenerator:
             self.grid[dy][dx].is_pattern = True
 
 
-
     
     def check_around(self, block: Block) -> list:
         """
@@ -151,7 +156,7 @@ class MazeGenerator:
 
 
 
-    def gen_algo(self, current_block: Block):
+    def gen_algo(self, current_block: Block) -> None:
         
         """
             Start at the Current Block, Check for Neighbors
@@ -217,7 +222,71 @@ class MazeGenerator:
 
 
 
-    # Just a small visualizer to see the generated maze 
+    def solve_maze(self, current_block: Block, exit_block: Block) -> None:
+        """
+            solve the Maze using Breath-first-search Algorithm
+        """
+        blocks = deque([current_block])
+        visited = set()
+        familly_map = {current_block: None}
+        visited.add(current_block)
+
+        while blocks:
+            current_block = blocks.popleft()
+            
+            # stop if we reach the exit and save its block
+            if (current_block.x, current_block.y) == (exit_block.x, exit_block.y):
+                break
+
+            cx, cy = current_block.x, current_block.y
+            neighbors = [(cx, cy-1), (cx, cy+1), (cx-1, cy), (cx+1, cy)]
+
+            for nx, ny in neighbors:
+                if 0 <= nx < self.width and 0 <= ny < self.height:
+                    neighbor_block = self.grid[ny][nx]
+
+                    if neighbor_block not in visited:
+                        # check connected walls 
+                        if cx < nx:
+                            if not current_block.has_wall("right") and not neighbor_block.has_wall("left"):
+                                blocks.append(neighbor_block)
+
+                        elif cx > nx:
+                            if not current_block.has_wall("left") and not neighbor_block.has_wall("right"):
+                                blocks.append(neighbor_block)
+
+                        elif cy > ny:
+                            if not current_block.has_wall("top") and not neighbor_block.has_wall("bottom"):
+                                blocks.append(neighbor_block)
+
+                        elif cy < ny:
+                            if not current_block.has_wall("bottom") and not neighbor_block.has_wall("top"):
+                                blocks.append(neighbor_block)
+                        else:
+                            continue
+                        
+                        if neighbor_block in blocks:
+                            visited.add(neighbor_block)
+                            familly_map[neighbor_block] = current_block
+
+        #trace back the path
+        solution = []
+        key_block = self.grid[exit_block.y][exit_block.x]
+
+        while key_block is not None:
+            solution.append(key_block)
+            key_block = familly_map.get(key_block)
+
+        solution.reverse()
+        for block in solution:
+            block.is_path = True
+
+
+
+
+
+
+    """   Just a small visualizer to see the generated maze """
     def print_maze(self):
         top_row = "o"
 
@@ -238,6 +307,8 @@ class MazeGenerator:
                 # cell space
                 if block.is_pattern == True:
                     row_top += " 0 "
+                elif block.is_path == True:
+                    row_top += " T "
                 else:
                     row_top += "   "
 

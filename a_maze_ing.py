@@ -90,11 +90,15 @@ def main() -> None:
     
     start_block = maze.grid[y][x]
     end_block = maze.grid[exit_y][exit_x]
-    
+
+    maze.entry = start_block
+    maze.exit = end_block
+
     maze.ft_pattern()
     maze.gen_algo(start_block)
+    maze.solve_maze(start_block, end_block)
 
-    
+
     # Open the entry wall
     if y == 0:
         start_block.pop_wall("top")
@@ -114,7 +118,8 @@ def main() -> None:
         end_block.pop_wall("left")
     elif exit_x == maze.width - 1:
         end_block.pop_wall("right")
-    
+
+
     # Print the maze to see the result
     maze.print_maze()
     
