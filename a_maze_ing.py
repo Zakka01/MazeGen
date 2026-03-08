@@ -97,6 +97,7 @@ def main() -> None:
     maze.ft_pattern()
     maze.gen_algo(start_block)
     maze.solve_maze(start_block, end_block)
+    
 
 
     # Open the entry wall
@@ -121,11 +122,12 @@ def main() -> None:
 
 
     # Print the maze to see the result
-    maze.print_maze()
+    # maze.print_maze()
     
     
     try:
         hex_output = maze.hex_encoding()
+        path = maze.path_direction()
 
         output_file = config["OUTPUT_FILE"]
         with open(output_file, "w") as f:
@@ -136,6 +138,10 @@ def main() -> None:
             f.write(f"{x},{y}")
             f.write("\n")
             f.write(f"{exit_x},{exit_y}")
+
+            f.write("\n")
+            for p in path:
+                f.write(p)
     except Exception as err:
         print(f"ERROR: {err}")
              

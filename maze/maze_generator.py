@@ -56,6 +56,7 @@ class MazeGenerator:
             extract height and width
         """  
         self.grid = []
+        self.solution = []
 
         self.height = config["HEIGHT"]
         self.width = config["WIDTH"]
@@ -201,31 +202,9 @@ class MazeGenerator:
 
 
 
-    def hex_encoding(self) -> list:
-        hex_lst = "0123456789ABCDEF"
-        hex_output = []
-        for row in range(self.height):
-            output = []
-            for col in range(self.width):
-                value = 0
-                block = self.grid[row][col]
-                if block.has_wall("top"): value += 1
-                if block.has_wall("right"): value += 2
-                if block.has_wall("bottom"): value += 4
-                if block.has_wall("left"): value += 8
-
-                block_hex = hex_lst[value]
-                output.append(block_hex)
-            hex_output.append(output)
-
-        return hex_output
-
-
-
     def solve_maze(self, current_block: Block, exit_block: Block) -> None:
-        """
-            solve the Maze using Breath-first-search Algorithm
-        """
+        """ Solve the Maze using Breadth-First Search Algorithm """
+
         blocks = deque([current_block])
         visited = set()
         familly_map = {current_block: None}
@@ -270,20 +249,57 @@ class MazeGenerator:
                             familly_map[neighbor_block] = current_block
 
         #trace back the path
-        solution = []
         key_block = self.grid[exit_block.y][exit_block.x]
 
         while key_block is not None:
-            solution.append(key_block)
+            self.solution.append(key_block)
             key_block = familly_map.get(key_block)
 
-        solution.reverse()
-        for block in solution:
+        self.solution.reverse()
+        for block in self.solution:
             block.is_path = True
 
 
+    def hex_encoding(self) -> list:
+        hex_lst = "0123456789ABCDEF"
+        hex_output = []
+        for row in range(self.height):
+            output = []
+            for col in range(self.width):
+                value = 0
+                block = self.grid[row][col]
+                if block.has_wall("top"): value += 1
+                if block.has_wall("right"): value += 2
+                if block.has_wall("bottom"): value += 4
+                if block.has_wall("left"): value += 8
+
+                block_hex = hex_lst[value]
+                output.append(block_hex)
+            hex_output.append(output)
+
+        return hex_output
 
 
+
+    def path_direction(self) -> list:
+        path = []
+        solution = self.solution
+        
+        for i in range(len(solution) - 1):
+            current = solution[i]
+            nxt = solution[i + 1]
+            
+            if nxt.x > current.x:
+                path.append("E")
+            elif nxt.x < current.x:
+                path.append("W")
+            elif nxt.y > current.y:
+                path.append("S")
+            elif nxt.y < current.y:
+                path.append("N")
+        
+        return path
+                
 
 
     """   Just a small visualizer to see the generated maze """
@@ -306,9 +322,9 @@ class MazeGenerator:
 
                 # cell space
                 if block.is_pattern == True:
-                    row_top += " 0 "
+                    row_top += " █ "
                 elif block.is_path == True:
-                    row_top += " T "
+                    row_top += "🔥 "
                 else:
                     row_top += "   "
 
