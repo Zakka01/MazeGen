@@ -150,6 +150,7 @@ class MazeGenerator:
             nx, ny = n
             if 0 <= nx < self.width and 0 <= ny < self.height:
                 this_block = self.grid[ny][nx]
+
                 if not this_block.checked and not this_block.is_pattern:
                     valid_neighbors.append(this_block)
 
@@ -157,7 +158,7 @@ class MazeGenerator:
 
 
 
-    def gen_algo(self, current_block: Block) -> None:
+    def maze_algo(self, current_block: Block) -> None:
         
         """
             Start at the Current Block, Check for Neighbors
@@ -200,6 +201,48 @@ class MazeGenerator:
             next_block.checked = True
             stack.append(next_block)
 
+
+
+    def random_loops(self) -> None:
+        
+        for y in range(self.height):
+            for x in range(self.width):
+
+                current_block = self.grid[y][x]
+                if current_block.is_pattern:
+                    continue
+
+                neighbors = []
+                if x + 1 < self.width and not self.grid[y][x+1].is_pattern:
+                    neighbors.append((x+1, y))
+                if y + 1 < self.height and not self.grid[y+1][x].is_pattern:
+                    neighbors.append((x, y+1))
+                if x - 1 >= 0 and not self.grid[y][x-1].is_pattern:
+                    neighbors.append((x-1, y))
+                if y - 1 >= 0 and not self.grid[y-1][x].is_pattern:
+                    neighbors.append((x, y-1))
+
+                if neighbors:
+                    nx, ny = random.choice(neighbors)
+                    neighbor_block = self.grid[ny][nx]
+
+                    # Remove walls betweeb two blocks
+                    if nx > x:
+                        current_block.pop_wall("right")
+                        neighbor_block.pop_wall("left")
+                    elif nx < x:
+                        current_block.pop_wall("left")
+                        neighbor_block.pop_wall("right")
+                    elif ny > y:
+                        current_block.pop_wall("bottom")
+                        neighbor_block.pop_wall("top")
+                    elif ny < y:
+                        current_block.pop_wall("top")
+                        neighbor_block.pop_wall("bottom")
+
+
+                
+        
 
 
     def solve_maze(self, current_block: Block, exit_block: Block) -> None:
@@ -258,6 +301,7 @@ class MazeGenerator:
         self.solution.reverse()
         for block in self.solution:
             block.is_path = True
+
 
 
     def hex_encoding(self) -> list:
@@ -323,8 +367,8 @@ class MazeGenerator:
                 # cell space
                 if block.is_pattern == True:
                     row_top += " █ "
-                elif block.is_path == True:
-                    row_top += "🔥 "
+                # elif block.is_path == True:
+                #     row_top += " H "
                 else:
                     row_top += "   "
 

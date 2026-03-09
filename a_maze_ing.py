@@ -53,6 +53,7 @@ def parse_config() -> dict:
                 config[key] = int(value)
             
             elif key == "PERFECT":
+                value = value.lower().capitalize()
                 if value not in ["True", "False"]:
                     raise ValueError(f"Invalid PERFECT value: {value}")
                 config[key] = value == "True"
@@ -66,7 +67,6 @@ def parse_config() -> dict:
         sys.exit(1)
         
     return config
-
 
 
 
@@ -95,7 +95,11 @@ def main() -> None:
     maze.exit = end_block
 
     maze.ft_pattern()
-    maze.gen_algo(start_block)
+    maze.maze_algo(start_block)
+    
+    if not config["PERFECT"]:
+        maze.random_loops()
+
     maze.solve_maze(start_block, end_block)
     
 
