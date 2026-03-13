@@ -1,4 +1,3 @@
-from maze.maze_generator import MazeGenerator
 from maze.block import Block
 from collections import deque
 
@@ -86,4 +85,3 @@ class MazeSolver():
                         familly_map[neighbor_block] = current_block
 
         self.build_solution(familly_map, exit_block)
-

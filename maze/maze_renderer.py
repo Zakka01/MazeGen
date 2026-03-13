@@ -1,12 +1,13 @@
 import pygame
 
 class MazeRenderer:
+
     def __init__(self, maze):
         pygame.init()
         
         self.maze = maze
-        self.block_size = 40
-        self.wall_thickness = 8
+        self.block_size = 30
+        self.wall_thickness = 5
         self.window_height = maze.height * self.block_size
         self.window_width = maze.width * self.block_size
 
@@ -17,7 +18,7 @@ class MazeRenderer:
 
         # Colors
         self.bg_color = (30, 30, 30)
-        self.path_color = (180, 140, 50)
+        self.path_color = (255, 255, 0)
         
         # Load textures
         self.grass_texture = pygame.transform.scale(
@@ -51,20 +52,21 @@ class MazeRenderer:
 
 
 
-
     def rendering(self):
         running = True
+        generating = True
         while running:
             self.screen.fill(self.bg_color)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+            if generating:
+                self.maze.maze_generation_dfs()
 
             self.draw_maze()
             pygame.display.flip()
 
         pygame.quit()
-
 
 
 
@@ -74,26 +76,22 @@ class MazeRenderer:
                 px = block.x * self.block_size
                 py = block.y * self.block_size
 
-                # Draw grass base
                 self.draw_block(px, py)
 
-                # Draw path tiles
-                if block.is_path:
-                    self.draw_path(px, py)
-
-                # Draw pattern blocks
                 if block.is_pattern:
                     self.draw_pattern(px, py)
 
-                # Entry / Exit
-                if block == self.maze.entry:
-                    self.draw_entry(px, py)
-                if block == self.maze.exit:
-                    self.draw_exit(px, py)
-
-                # Walls with tree textures
                 self.draw_walls(block, px, py)
+                
+                if block.is_path:
+                    self.draw_path(block, px, py)
+                if block == self.maze.current_block:
+                    self.draw_current(px, py)
 
+                if (block.x, block.y) == self.maze.exit:
+                    self.draw_exit(px, py)
+                if (block.x, block.y) == self.maze.entry:
+                    self.draw_entry(px, py)
 
 
 
@@ -102,12 +100,27 @@ class MazeRenderer:
 
 
 
+    def draw_current(self, px, py):
+        padding = 4
+        pygame.draw.rect(
+            self.screen,
+            (0, 0, 0),
+            (
+                px + padding,
+                py + padding,
+                self.block_size - padding * 2,
+                self.block_size - padding * 2
+            ),
+            3
+        )
+
+
 
     def draw_walls(self, block, px, py):
         t = self.tree_texture
         s = self.block_size
         if block.is_pattern:
-            w = self.wall_thickness - 7.5
+            w = 2
         else:
             w = self.wall_thickness
 
@@ -122,15 +135,70 @@ class MazeRenderer:
 
 
 
+    def draw_path(self, block, px, py):
 
-    def draw_path(self, px, py):
-        self.screen.blit(self.path_texture, (px + 10, py + 10))
+        cx = px + self.block_size // 2
+        cy = py + self.block_size // 2
+        thickness = 8
+
+        x = block.x
+        y = block.y
+
+        # TOP
+        if y > 0 and not block.has_wall("top"):
+            neighbor = self.maze.grid[y-1][x]
+            if neighbor.is_path:
+                pygame.draw.line(self.screen, self.path_color,
+                                (cx, cy),
+                                (cx, cy - self.block_size),
+                                thickness)
+
+        # RIGHT
+        if x < self.maze.width - 1 and not block.has_wall("right"):
+            neighbor = self.maze.grid[y][x+1]
+            if neighbor.is_path:
+                pygame.draw.line(self.screen, self.path_color,
+                                (cx, cy),
+                                (cx + self.block_size, cy),
+                                thickness)
+
+        # BOTTOM
+        if y < self.maze.height - 1 and not block.has_wall("bottom"):
+            neighbor = self.maze.grid[y+1][x]
+            if neighbor.is_path:
+                pygame.draw.line(self.screen, self.path_color,
+                                (cx, cy),
+                                (cx, cy + self.block_size),
+                                thickness)
+
+        # LEFT
+        if x > 0 and not block.has_wall("left"):
+            neighbor = self.maze.grid[y][x-1]
+            if neighbor.is_path:
+                pygame.draw.line(self.screen, self.path_color,
+                                (cx, cy),
+                                (cx - self.block_size, cy),
+                                thickness)
+
+
 
     def draw_pattern(self, px, py):
         self.screen.blit(self.stone_texture, (px, py))
 
+
+
     def draw_entry(self, px, py):
-        self.screen.blit(self.entry_texture, (px + 5, py + 5))
+        padding = 5
+        self.screen.blit(
+            self.entry_texture,
+            (px + padding, py + padding)
+        )
+
+
 
     def draw_exit(self, px, py):
-        self.screen.blit(self.exit_texture, (px + 5, py + 5))
+        padding = 3
+        self.screen.blit(
+            self.exit_texture,
+            (px + padding, py + padding)
+        )

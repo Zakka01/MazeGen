@@ -82,7 +82,7 @@ def parse_config() -> dict:
 def main() -> None:
 
     config = parse_config() # Get config file result
-    maze = MazeGenerator(config) 
+    maze = MazeGenerator(config)
     maze.grid_builder()
 
 
@@ -107,9 +107,10 @@ def main() -> None:
 
     
     # generate and solve maze
-    maze.generate_all(start_block)
+    maze.start_generation(start_block)
+    maze.generate_all()
     solve = MazeSolver(maze)
-    # solve.solve_maze(start_block, end_block)
+    solve.solve_maze(start_block, end_block)
 
 
 

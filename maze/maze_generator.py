@@ -20,15 +20,18 @@ class MazeGenerator:
         self.exit = config["EXIT"]
 
         self.seed = config["SEED"]
-        self.pattern = config["PATTERN"]
 
         self.grid = []
         self.solution = []
 
+        self.current_block = None
+        self.stack = []
 
-    def generate_all(self, start_block):
+
+
+    def generate_all(self):
         self.ft_pattern()
-        self.maze_algo(start_block)
+        self.maze_generation_dfs()
 
         if not self.perfect:
             self.random_loops()
@@ -82,13 +85,6 @@ class MazeGenerator:
         
         cx = self.width // 2
         cy = self.height // 2
-
-        # number = self.pattern
-        # digits = []
-        # while number > 0:
-        #     digits.append(number % 10)
-        #     number //= 10
-        # digits.reverse()
         
         four = [
             (cy-2, cx-3),
@@ -149,7 +145,15 @@ class MazeGenerator:
 
 
 
-    def maze_algo(self, current_block: Block) -> None:
+    def start_generation(self, start_block: Block) -> None:
+        random.seed(self.seed)
+
+        self.stack = [start_block]
+        start_block.checked = True
+
+
+
+    def maze_generation_dfs(self) -> bool:
         
         """
             Start at the Current Block, Check for Neighbors
@@ -159,25 +163,25 @@ class MazeGenerator:
             last item (the current block) and access the last one [-1]
             this is BackTracking :) 
         """
-        random.seed(self.seed)
+        if not self.stack:
+            return False
 
-        stack = [current_block]
-        current_block.checked = True
+        current_block = self.stack[-1]
+        self.current_block = current_block
+        valid_neighbors = self.get_unvisited_neighbors(current_block)
 
-        while stack:
-            current_block = stack[-1]
-            valid_neighbors = self.get_unvisited_neighbors(current_block)
+        if not valid_neighbors:
+            self.stack.pop()
+            return True
+        
+        next_block = random.choice(valid_neighbors)
 
-            if not valid_neighbors:
-                stack.pop()
-                continue
-            
-            next_block = random.choice(valid_neighbors)
+        self.remove_wall_between(current_block, next_block)
 
-            self.remove_wall_between(current_block, next_block)
+        next_block.checked = True
+        self.stack.append(next_block)
 
-            next_block.checked = True
-            stack.append(next_block)
+        return True
 
 
 
@@ -249,5 +253,3 @@ class MazeGenerator:
                 path.append("N")
         
         return path
-
-
