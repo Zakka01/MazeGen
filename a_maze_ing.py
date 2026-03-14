@@ -109,8 +109,9 @@ def main() -> None:
     # generate and solve maze
     maze.start_generation(start_block)
     maze.generate_all()
+
     solve = MazeSolver(maze)
-    solve.solve_maze(start_block, end_block)
+    solve.start_solving(start_block, end_block)
 
 
 
@@ -135,7 +136,7 @@ def main() -> None:
         end_block.pop_wall("right")
 
 
-    # write the output to a maze.txt file    
+    # write the output to a maze.txt file
     try:
         hex_output = maze.hex_encoding()
         path = maze.path_direction()
@@ -157,7 +158,7 @@ def main() -> None:
         print(f"ERROR: {err}")
 
 
-    render = MazeRenderer(maze)
+    render = MazeRenderer(maze, solve)
     render.rendering()
     render.draw_maze()
 

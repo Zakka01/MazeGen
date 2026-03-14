@@ -1,13 +1,19 @@
 import pygame
+from maze.maze_generator import MazeGenerator
+from maze.maze_solver import MazeSolver
 
 class MazeRenderer:
 
-    def __init__(self, maze):
+    def __init__(self, maze: MazeGenerator, solve: MazeSolver):
         pygame.init()
         
         self.maze = maze
+        self.solve = solve
+
+        self.player_idx = 0
         self.block_size = 30
         self.wall_thickness = 5
+
         self.window_height = maze.height * self.block_size
         self.window_width = maze.width * self.block_size
 
@@ -16,11 +22,9 @@ class MazeRenderer:
         )
         pygame.display.set_caption("Do Not Get Lost - Forest Maze")
 
-        # Colors
         self.bg_color = (30, 30, 30)
         self.path_color = (255, 255, 0)
         
-        # Load textures
         self.grass_texture = pygame.transform.scale(
             pygame.image.load("assets/grass_texture.png"), 
             (self.block_size, self.block_size)
@@ -55,13 +59,17 @@ class MazeRenderer:
     def rendering(self):
         running = True
         generating = True
+
         while running:
             self.screen.fill(self.bg_color)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+
             if generating:
-                self.maze.maze_generation_dfs()
+                generating = self.maze.maze_generation_dfs()
+            elif self.solve.solving:
+                self.solve.solve_maze()
 
             self.draw_maze()
             pygame.display.flip()

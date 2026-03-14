@@ -2,7 +2,6 @@ from maze.block import Block
 from collections import deque
 
 
-
 class MazeSolver():
 
     def __init__(self, maze):
@@ -14,6 +13,12 @@ class MazeSolver():
 
         self.grid = maze.grid
         self.solution = maze.solution
+        
+        self.queue = deque()
+        self.visited = set()
+        self.family_map = {}
+        self.exit_block = None
+        self.solving = True
         
         
         
@@ -51,37 +56,46 @@ class MazeSolver():
             block.is_path = True
 
 
+    
+    
+    def start_solving(self, start_block, exit_block):
 
-    def solve_maze(self, current_block: Block, exit_block: Block) -> None:
+        self.queue = deque([start_block])
+        self.visited = {start_block}
+        self.family_map = {start_block: None}
+
+        self.exit_block = exit_block
+
+
+    def solve_maze(self) -> bool:
 
         """ Solve the Maze using Breadth-First Search Algorithm """
 
-        blocks = deque([current_block])
-        visited = set()
-        familly_map = {current_block: None}
-        visited.add(current_block)
+        if not self.queue:
+            self.solving = False
+            return False
 
-        while blocks:
-            current_block = blocks.popleft()
-            
-            # stop if we reach the exit and save its block
-            if (current_block.x, current_block.y) == (exit_block.x, exit_block.y):
-                break
+        current_block = self.queue.popleft()
+        
+        # stop if we reach the exit and save its block
+        if current_block == self.exit_block:
+            self.build_solution(self.family_map, self.exit_block)
+            self.solving = False
+            return False
 
-            cx, cy = current_block.x, current_block.y
-            neighbors = [(cx, cy-1), (cx, cy+1), (cx-1, cy), (cx+1, cy)]
+        cx, cy = current_block.x, current_block.y
+        neighbors = [(cx, cy-1), (cx, cy+1), (cx-1, cy), (cx+1, cy)]
 
-            for nx, ny in neighbors:
-                if 0 <= nx < self.width and 0 <= ny < self.height:
-                    neighbor_block = self.grid[ny][nx]
+        for nx, ny in neighbors:
+            if 0 <= nx < self.width and 0 <= ny < self.height:
+                neighbor_block = self.grid[ny][nx]
 
-                    if neighbor_block in visited:
-                        continue
-                    
-                    # check connected walls 
-                    if self.is_connected(current_block, neighbor_block):
-                        blocks.append(neighbor_block) 
-                        visited.add(neighbor_block)
-                        familly_map[neighbor_block] = current_block
-
-        self.build_solution(familly_map, exit_block)
+                if neighbor_block in self.visited:
+                    continue
+                
+                # check connected walls 
+                if self.is_connected(current_block, neighbor_block):
+                    self.queue.append(neighbor_block) 
+                    self.visited.add(neighbor_block)
+                    self.family_map[neighbor_block] = current_block
+        return True

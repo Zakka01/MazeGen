@@ -127,10 +127,14 @@ class MazeGenerator:
             are the coordinates, then we check the bounderies 
             if valid, to append the valid neighbor to the list
         """
-        valid_neighbors = []
+        valid_neighbors = [] 
         x, y = block.x, block.y
 
-        neighbors = [(x, y-1), (x, y+1), (x-1, y), (x+1, y)]
+        neighbors = [(x, y-1),
+                    (x, y+1),
+                    (x-1, y),
+                    (x+1, y)
+                ]
         
         # loop over Neighbors & Add valid ones that hasn't checked yet
         for n in neighbors:
