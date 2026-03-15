@@ -2,6 +2,7 @@ import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "42"
 
 import pygame
+import random
 from maze.maze_generator import MazeGenerator
 from maze.maze_solver import MazeSolver
 
@@ -89,6 +90,14 @@ class MazeRenderer:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+            
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_1:
+                        seed = random.randint(1, 1000)
+                        self.maze.reset_maze(seed)
+                        self.solve.reset_solve()
+                        self.player_idx = 0
+                        generating = True
 
             # Generate maze, step on each call
             if generating:

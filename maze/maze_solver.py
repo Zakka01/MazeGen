@@ -21,6 +21,20 @@ class MazeSolver():
         self.solving = True
 
         self.show_visited = True
+
+
+    def reset_solve(self) -> None:
+        self.queue = deque()
+        self.visited = set()
+        self.family_map = {}
+        
+        x, y = self.entry
+        ex, ey = self.exit
+
+        start_block = self.grid[y][x]
+        exit_block = self.grid[ey][ex]
+        
+        self.start_solving(start_block, exit_block)
         
         
         

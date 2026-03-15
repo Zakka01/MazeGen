@@ -28,8 +28,20 @@ class MazeGenerator:
         self.stack = []
 
 
+    def reset_maze(self, seed) -> None:
+        self.seed = seed
+        self.grid = []
+        self.stack = []
 
-    def generate_all(self):
+        self.grid_builder()
+        x, y = self.entry
+        start_block = self.grid[y][x]
+
+        self.start_generation(start_block)
+        self.ft_pattern()
+
+
+    def generate_all(self) -> None:
         self.ft_pattern()
         self.maze_generation_dfs()
 
@@ -52,7 +64,7 @@ class MazeGenerator:
 
 
 
-    def remove_wall_between(self, a: Block, b: Block):
+    def remove_wall_between(self, a: Block, b: Block) -> None:
 
         cx, cy = a.x, a.y
         nx, ny = b.x, b.y
