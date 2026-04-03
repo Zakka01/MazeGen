@@ -137,7 +137,7 @@ class MazeRenderer:
                 generating = self.maze.maze_generation_dfs()
                 self.clock.tick(120)
 
-            # solve maze, block on each call
+            # solve maze, step on each call
             elif self.solve.solving:
                 still_solve = self.solve.solve_maze()
                 if not still_solve:

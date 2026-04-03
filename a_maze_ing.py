@@ -118,10 +118,9 @@ def main() -> None:
         print(f"ERROR: {e}", file=sys.stderr)
         exit(1)
 
-    # generate and solve maze
+    # init the containers to start generate and solve maze
     maze.start_generation(start_block)
     maze.generate_all()
-
     solve.start_solving(start_block, end_block)
 
     # Write to the output file
@@ -143,7 +142,7 @@ def main() -> None:
             for p in path:
                 f.write(p)
     except Exception as err:
-        print(f"ERROR: {err}")
+        print(f"ERROR: {err}", file=sys.stderr)
 
     render = MazeRenderer(maze, solve)
     render.rendering()
