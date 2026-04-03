@@ -12,4 +12,4 @@ PERFECT = -0
 
 SEED = 2
 
-ALGO=DFS
+ALGO = DFS
