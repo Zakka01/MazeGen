@@ -26,6 +26,17 @@ class MazeSolver:
         self.queue = deque()
         self.visited = set()
         self.family_map = {}
+        self.exit_block = None
+        self.solving = True
+
+        # Refresh references in case the maze object reset its grid/solution.
+        self.entry = self.maze.entry
+        self.exit = self.maze.exit
+        self.grid = self.maze.grid
+        self.solution = self.maze.solution
+
+        # Always start from a clean path after regeneration.
+        self.solution.clear()
 
         self.grid = self.maze.grid
         x, y = self.entry
